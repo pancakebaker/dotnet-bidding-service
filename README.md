@@ -1,5 +1,7 @@
 # Distributed Bidding Service
 
+[![CI](https://github.com/pancakebaker/dotnet-bidding-service/actions/workflows/validation.yml/badge.svg)](https://github.com/pancakebaker/dotnet-bidding-service/actions/workflows/validation.yml)
+
 Standalone .NET runtime for the authoritative bidding boundary of the Distributed Bidding Auction Platform.
 
 ## Responsibility
@@ -19,6 +21,20 @@ decisions.
 This repository does not own Laravel/React, Live Feed, the Operations Portal or
 its activity database, Live Feed Redis projections, or platform-wide Docker
 orchestration.
+
+## Related repositories
+
+- [Laravel React Auction Web](https://github.com/pancakebaker/laravel-react-auction-web) is the tenant-facing BFF and client.
+- [Live Feed](https://github.com/pancakebaker/nodejs-live-feed) consumes published integration events for realtime delivery.
+- [Operations Portal](https://github.com/pancakebaker/dotnet-blazor-operations-portal) consumes events into its own activity/history projection.
+- [DBAP Platform Infrastructure](https://github.com/pancakebaker/docker-dbap-platform) provides development PostgreSQL, RabbitMQ, and Redis.
+- [Historical integrated monorepo](https://github.com/pancakebaker/distributed-bidding-auction-platform) preserves the original platform snapshot.
+
+The [platform architecture map](https://github.com/pancakebaker/docker-dbap-platform/blob/main/docs/architecture.md)
+shows how this authoritative boundary connects to the independent consumers.
+This is a functioning architecture and portfolio/demo runtime, not a complete
+production-hardening package. No license file is currently included in this
+extracted repository.
 
 ## Runtime components
 
