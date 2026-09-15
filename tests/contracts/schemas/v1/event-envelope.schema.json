@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dbap:event:event-envelope:v1",
+  "title": "DBAP integration event envelope",
+  "description": "Stable envelope emitted through the Bidding outbox and consumed by independent services.",
+  "$defs": {
+    "uuid": {
+      "type": "string",
+      "format": "uuid"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "baseEnvelope": {
+      "type": "object",
+      "required": [
+        "eventId",
+        "eventType",
+        "occurredAtUtc",
+        "aggregateType",
+        "aggregateId",
+        "aggregateVersion",
+        "correlationId",
+        "tenantId",
+        "payload"
+      ],
+      "properties": {
+        "eventId": { "$ref": "#/$defs/uuid" },
+        "eventType": { "type": "string", "minLength": 1 },
+        "occurredAtUtc": { "$ref": "#/$defs/timestamp" },
+        "aggregateType": { "type": "string", "enum": ["Auction", "Tenant"] },
+        "aggregateId": { "$ref": "#/$defs/uuid" },
+        "aggregateVersion": { "type": "integer", "minimum": 1 },
+        "correlationId": { "type": ["string", "null"] },
+        "tenantId": { "$ref": "#/$defs/uuid" },
+        "payload": { "type": "object" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "$ref": "#/$defs/baseEnvelope"
+}

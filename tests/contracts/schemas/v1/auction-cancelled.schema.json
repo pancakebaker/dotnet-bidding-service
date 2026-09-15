@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dbap:event:auction-cancelled:v1",
+  "title": "AuctionCancelled v1",
+  "allOf": [
+    { "$ref": "urn:dbap:event:event-envelope:v1#/$defs/baseEnvelope" },
+    {
+      "type": "object",
+      "properties": {
+        "eventType": { "const": "AuctionCancelled" },
+        "aggregateType": { "const": "Auction" },
+        "payload": {
+          "type": "object",
+          "required": ["tenantId", "auctionId"],
+          "properties": {
+            "tenantId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            },
+            "auctionId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": ["eventType", "aggregateType"]
+    }
+  ]
+}

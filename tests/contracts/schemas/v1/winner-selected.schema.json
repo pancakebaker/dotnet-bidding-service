@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dbap:event:winner-selected:v1",
+  "title": "WinnerSelected v1",
+  "allOf": [
+    { "$ref": "urn:dbap:event:event-envelope:v1#/$defs/baseEnvelope" },
+    {
+      "type": "object",
+      "properties": {
+        "eventType": { "const": "WinnerSelected" },
+        "aggregateType": { "const": "Auction" },
+        "payload": {
+          "type": "object",
+          "required": [
+            "tenantId",
+            "auctionId",
+            "winningBidId",
+            "winnerId",
+            "amount",
+            "selectedAtUtc",
+            "auctionVersion"
+          ],
+          "properties": {
+            "tenantId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            },
+            "auctionId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            },
+            "winningBidId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            },
+            "winnerId": { "type": "string", "minLength": 1 },
+            "amount": { "type": "number", "minimum": 0 },
+            "selectedAtUtc": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/timestamp"
+            },
+            "auctionVersion": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": ["eventType", "aggregateType"]
+    }
+  ]
+}

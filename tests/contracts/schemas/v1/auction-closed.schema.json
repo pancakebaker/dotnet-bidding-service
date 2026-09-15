@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dbap:event:auction-closed:v1",
+  "title": "AuctionClosed v1",
+  "allOf": [
+    { "$ref": "urn:dbap:event:event-envelope:v1#/$defs/baseEnvelope" },
+    {
+      "type": "object",
+      "properties": {
+        "eventType": { "const": "AuctionClosed" },
+        "aggregateType": { "const": "Auction" },
+        "payload": {
+          "type": "object",
+          "required": [
+            "tenantId",
+            "auctionId",
+            "closedAtUtc",
+            "finalBidAmount",
+            "finalBidderId",
+            "auctionVersion"
+          ],
+          "properties": {
+            "tenantId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            },
+            "auctionId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            },
+            "closedAtUtc": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/timestamp"
+            },
+            "finalBidAmount": { "type": ["number", "null"], "minimum": 0 },
+            "finalBidderId": { "type": ["string", "null"] },
+            "auctionVersion": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": ["eventType", "aggregateType"]
+    }
+  ]
+}

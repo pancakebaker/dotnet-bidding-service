@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dbap:event:auction-purchased:v1",
+  "title": "AuctionPurchased v1",
+  "description": "The producer-supplied final purchase amount is authoritative; consumers must not infer it from BidAccepted.",
+  "allOf": [
+    { "$ref": "urn:dbap:event:event-envelope:v1#/$defs/baseEnvelope" },
+    {
+      "type": "object",
+      "properties": {
+        "eventType": { "const": "AuctionPurchased" },
+        "aggregateType": { "const": "Auction" },
+        "payload": {
+          "type": "object",
+          "required": [
+            "tenantId",
+            "auctionId",
+            "bidderId",
+            "finalPrice",
+            "purchasedAtUtc",
+            "auctionVersion"
+          ],
+          "properties": {
+            "tenantId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            },
+            "auctionId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            },
+            "bidderId": { "type": "string", "minLength": 1 },
+            "finalPrice": { "type": "number", "minimum": 0 },
+            "purchasedAtUtc": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/timestamp"
+            },
+            "auctionVersion": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": ["eventType", "aggregateType"]
+    }
+  ]
+}

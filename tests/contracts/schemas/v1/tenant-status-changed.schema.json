@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dbap:event:tenant-status-changed:v1",
+  "title": "TenantStatusChanged v1",
+  "description": "Committed tenant lifecycle transition. The payload EventId is retained because it is part of the current producer contract.",
+  "allOf": [
+    { "$ref": "urn:dbap:event:event-envelope:v1#/$defs/baseEnvelope" },
+    {
+      "type": "object",
+      "properties": {
+        "eventType": { "const": "TenantStatusChanged" },
+        "aggregateType": { "const": "Tenant" },
+        "payload": {
+          "type": "object",
+          "required": [
+            "eventId",
+            "tenantId",
+            "previousStatus",
+            "currentStatus",
+            "tenantVersion",
+            "occurredAtUtc"
+          ],
+          "properties": {
+            "eventId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            },
+            "tenantId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            },
+            "previousStatus": {
+              "type": "string",
+              "enum": ["Active", "Suspended", "Disabled"]
+            },
+            "currentStatus": {
+              "type": "string",
+              "enum": ["Active", "Suspended", "Disabled"]
+            },
+            "tenantVersion": { "type": "integer", "minimum": 1 },
+            "occurredAtUtc": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/timestamp"
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": ["eventType", "aggregateType"]
+    }
+  ]
+}

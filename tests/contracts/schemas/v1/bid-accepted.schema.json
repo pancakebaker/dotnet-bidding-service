@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:dbap:event:bid-accepted:v1",
+  "title": "BidAccepted v1",
+  "allOf": [
+    { "$ref": "urn:dbap:event:event-envelope:v1#/$defs/baseEnvelope" },
+    {
+      "type": "object",
+      "properties": {
+        "eventType": { "const": "BidAccepted" },
+        "aggregateType": { "const": "Auction" },
+        "payload": {
+          "type": "object",
+          "required": [
+            "tenantId",
+            "bidId",
+            "auctionId",
+            "bidderId",
+            "amount",
+            "occurredAtUtc",
+            "auctionVersion"
+          ],
+          "properties": {
+            "tenantId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            },
+            "bidId": { "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid" },
+            "auctionId": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/uuid"
+            },
+            "bidderId": { "type": "string", "minLength": 1 },
+            "amount": { "type": "number", "minimum": 0 },
+            "occurredAtUtc": {
+              "$ref": "urn:dbap:event:event-envelope:v1#/$defs/timestamp"
+            },
+            "auctionVersion": { "type": "integer", "minimum": 1 }
+          },
+          "additionalProperties": true
+        }
+      },
+      "required": ["eventType", "aggregateType"]
+    }
+  ]
+}
