@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/contracts/" />
+  <Folder Name="/contracts/integration-contracts/">
+    <Project Path="contracts/integration-contracts/DistributedBidding.IntegrationContracts.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/auction-scheduler/auction-scheduler.csproj" />
+    <Project Path="src/bidding-service/bidding-service.csproj" />
+    <Project Path="src/outbox-publisher/outbox-publisher.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/auction-scheduler.Tests/auction-scheduler.Tests.csproj" />
+    <Project Path="tests/bidding-service.Tests/bidding-service.Tests.csproj" />
+    <Project Path="tests/outbox-publisher.Tests/outbox-publisher.Tests.csproj" />
+  </Folder>
+</Solution>

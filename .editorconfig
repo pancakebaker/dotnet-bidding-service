@@ -1,0 +1,107 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+# Standard target for manually authored C# source. The active Roslyn and
+# StyleCop rules do not emit a hard diagnostic for physical line length.
+max_line_length = 100
+
+# Built-in .NET analyzer policy: keep correctness/reliability diagnostics visible without turning every design suggestion into a release blocker.
+dotnet_analyzer_diagnostic.category-Security.severity = warning
+dotnet_analyzer_diagnostic.category-Reliability.severity = warning
+dotnet_analyzer_diagnostic.category-Performance.severity = suggestion
+dotnet_analyzer_diagnostic.category-Design.severity = suggestion
+dotnet_analyzer_diagnostic.category-Globalization.severity = suggestion
+
+# Phase 11 StyleCop policy: enforce source headers and meaningful public API summaries for production code. Parameter/return tags are relaxed to avoid boilerplate on minimal APIs and compact DTOs.
+dotnet_diagnostic.SA1600.severity = error
+dotnet_diagnostic.SA1601.severity = error
+dotnet_diagnostic.SA1602.severity = error
+dotnet_diagnostic.SA1604.severity = error
+dotnet_diagnostic.SA1611.severity = none
+dotnet_diagnostic.SA1615.severity = none
+dotnet_diagnostic.SA1633.severity = error
+
+# These StyleCop style/layout rules create broad cosmetic churn in this existing demo codebase.
+# The project keeps existing namespaces and compact contract files to avoid nonfunctional rewrites.
+dotnet_diagnostic.SA1101.severity = none
+dotnet_diagnostic.SA1116.severity = none
+dotnet_diagnostic.SA1117.severity = none
+dotnet_diagnostic.SA1200.severity = none
+dotnet_diagnostic.SA1201.severity = none
+dotnet_diagnostic.SA1202.severity = none
+dotnet_diagnostic.SA1203.severity = none
+dotnet_diagnostic.SA1623.severity = none
+dotnet_diagnostic.SA1514.severity = none
+dotnet_diagnostic.SA1507.severity = none
+dotnet_diagnostic.SA1204.severity = none
+dotnet_diagnostic.SA1300.severity = none
+dotnet_diagnostic.SA1309.severity = none
+dotnet_diagnostic.SA1401.severity = none
+dotnet_diagnostic.SA1402.severity = none
+dotnet_diagnostic.SA1413.severity = none
+dotnet_diagnostic.SA1500.severity = none
+dotnet_diagnostic.SA1503.severity = none
+dotnet_diagnostic.SA1513.severity = none
+dotnet_diagnostic.SA1516.severity = none
+dotnet_diagnostic.SA1518.severity = none
+dotnet_diagnostic.SA1636.severity = none
+dotnet_diagnostic.SA1649.severity = none
+dotnet_diagnostic.CA1707.severity = none
+dotnet_diagnostic.CA1805.severity = suggestion
+dotnet_diagnostic.CA1822.severity = suggestion
+dotnet_diagnostic.CA1848.severity = suggestion
+dotnet_diagnostic.CA1873.severity = suggestion
+
+[**/Migrations/*.cs]
+generated_code = true
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.SA1601.severity = none
+dotnet_diagnostic.SA1602.severity = none
+dotnet_diagnostic.SA1604.severity = none
+dotnet_diagnostic.SA1611.severity = none
+dotnet_diagnostic.SA1615.severity = none
+dotnet_diagnostic.SA1633.severity = none
+
+[**/*ModelSnapshot.cs]
+generated_code = true
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.SA1601.severity = none
+dotnet_diagnostic.SA1602.severity = none
+dotnet_diagnostic.SA1604.severity = none
+dotnet_diagnostic.SA1611.severity = none
+dotnet_diagnostic.SA1615.severity = none
+dotnet_diagnostic.SA1633.severity = none
+
+[**/*.Tests/**/*.cs]
+# Test names carry behavior documentation; keep correctness analyzers, relax XML/header noise.
+dotnet_diagnostic.SA1600.severity = none
+dotnet_diagnostic.SA1601.severity = none
+dotnet_diagnostic.SA1602.severity = none
+dotnet_diagnostic.SA1604.severity = none
+dotnet_diagnostic.SA1611.severity = none
+dotnet_diagnostic.SA1615.severity = none
+dotnet_diagnostic.SA1633.severity = none
+
+[*.razor]
+indent_style = space
+indent_size = 4
+# Applies the repository's source-length target to authored Razor markup and
+# embedded C# without changing generated Razor output.
+max_line_length = 100
+
+[*.php]
+max_line_length = 100
+
+[*.blade.php]
+max_line_length = 100
+
+[*.{js,jsx,ts,tsx,mjs,cjs}]
+max_line_length = 100

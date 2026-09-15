@@ -1,0 +1,24 @@
+## .NET build output
+bin/
+obj/
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+TestResults/
+coverage/
+
+## Local configuration and key material
+.env
+appsettings.*.local.json
+keys/
+*.pfx
+*.key
+*.pem
+
+## IDE files
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.userprefs

@@ -1,0 +1,64 @@
+name: Bidding runtime validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: auction_demo_tests
+          POSTGRES_USER: auction_app
+          POSTGRES_PASSWORD: change_me_in_local_env
+        ports:
+          - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U auction_app -d auction_demo_tests"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      rabbitmq:
+        image: rabbitmq:4-management
+        env:
+          RABBITMQ_DEFAULT_USER: auction
+          RABBITMQ_DEFAULT_PASS: change_me_in_local_env
+        ports:
+          - 5672:5672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+      redis:
+        image: redis:8-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      ConnectionStrings__BiddingDb: Host=127.0.0.1;Port=55432;Database=auction_demo_tests;Username=auction_app;Password=change_me_in_local_env
+      ConnectionStrings__ClientAssertionRedis: localhost:6379
+      OUTBOX_PUBLISHER_RABBITMQ_HOST: 127.0.0.1
+      OUTBOX_PUBLISHER_RABBITMQ_PORT: 5672
+      OUTBOX_PUBLISHER_RABBITMQ_USERNAME: auction
+      OUTBOX_PUBLISHER_RABBITMQ_PASSWORD: change_me_in_local_env
+      OUTBOX_PUBLISHER_RABBITMQ_VHOST: /
+      OUTBOX_PUBLISHER_RABBITMQ_EXCHANGE: auction.events
+      OUTBOX_PUBLISHER_RABBITMQ_DEBUG_QUEUE: auction.events.debug
+      OUTBOX_PUBLISHER_RABBITMQ_DECLARE_DEBUG_QUEUE: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore
+      - run: dotnet build --no-restore --warnaserror
+      - run: dotnet test --no-build --no-restore

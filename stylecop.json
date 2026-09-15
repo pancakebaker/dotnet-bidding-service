@@ -1,0 +1,10 @@
+{
+  "settings": {
+    "documentationRules": {
+      "companyName": "Distributed Bidding Auction Platform",
+      "copyrightText": "Copyright (c) Distributed Bidding Auction Platform. Licensed under the MIT license.",
+      "xmlHeader": false,
+      "fileNamingConvention": "metadata"
+    }
+  }
+}
