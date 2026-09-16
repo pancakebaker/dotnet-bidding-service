@@ -4,6 +4,7 @@
 using bidding_service.Data;
 using bidding_service.Domain;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace bidding_service.Services;
 
@@ -82,8 +83,19 @@ public sealed class TenantStatusAdministrationService(
         {
             throw new TenantStatusConcurrencyException(exception);
         }
+        catch (DbUpdateException exception) when (IsLifecycleVersionConflict(exception))
+        {
+            throw new TenantStatusConcurrencyException(exception);
+        }
 
         return new TenantStatusTransitionResult(tenant, previousStatus, true);
+    }
+
+    private static bool IsLifecycleVersionConflict(DbUpdateException exception)
+    {
+        return exception.InnerException is PostgresException postgresException
+            && postgresException.SqlState == PostgresErrorCodes.UniqueViolation
+            && postgresException.ConstraintName == "ux_tenant_status_transitions_tenant_version";
     }
 }
 
