@@ -95,6 +95,26 @@ Current producer routing keys include `auction.bid.accepted`,
 baselines for the existing `BidAccepted`, `AuctionClosed`, and `WinnerSelected`
 wire formats.
 
+## Activity reporting
+
+Authenticated tenant clients can read the bounded activity report at
+`GET /api/reporting/activity`. The endpoint uses the validated tenant identity
+from the access token; it does not accept a caller-supplied tenant ID. The
+optional `days` query parameter defaults to `7` and accepts values from `1`
+through `30`.
+
+Dates are UTC calendar dates, include today, are returned in ascending order,
+and include zero-count buckets. `bids` counts accepted rows in the authoritative
+`bids` table. `purchases` counts durable `AuctionPurchased` records in the
+transactional outbox, regardless of whether they have been published yet.
+Because the current event contract does not distinguish explicit Buy Now from
+threshold-triggered completion, `purchases` includes every completion emitted
+as `AuctionPurchased`.
+
+The response contains only dates and counts; it does not expose bidder,
+auction, or event-payload data. This is a read-only reporting surface and does
+not alter bid or Buy Now behavior.
+
 ## Local setup
 
 ### Prerequisites

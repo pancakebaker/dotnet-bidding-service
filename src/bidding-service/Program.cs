@@ -213,6 +213,7 @@ app.MapGet("/health", () => Results.Ok(new
 .WithName("Health");
 
 app.MapAuctionEndpoints();
+app.MapReportingEndpoints();
 app.MapLiveFeedInternalEndpoints();
 app.MapTenantAdministrationEndpoints();
 
