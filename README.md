@@ -159,21 +159,21 @@ Never commit real credentials or private keys.
 ### Local keys
 
 The Bidding Service verifies tokens; it does not own the private keys used to
-sign them. Place the corresponding public PEM files at the paths configured by
-the API, normally:
+sign them. Place the corresponding public PEM files under the Bidding Service
+project at the paths configured by the API, normally:
 
 ```text
-keys/bidding-service-public.pem
-keys/system-admin-public.pem
-keys/live-feed-service-public.pem
+src/bidding-service/keys/bidding-service-public.pem
+src/bidding-service/keys/system-admin-public.pem
+src/bidding-service/keys/live-feed-service-public.pem
 ```
 
 The Laravel/BFF and SystemAdministrator installations retain their private
 signing keys. Live Feed also retains its private key. This repository needs
 only the matching public verification material. No supported key-generation
 command is included here, so obtain the public keys from the local service
-installations or your development key-provisioning process. The `keys/`
-directory and PEM files are ignored by Git.
+installations or your development key-provisioning process. The
+`src/bidding-service/keys/` directory and PEM files are ignored by Git.
 
 In Development, missing API and system-admin public files do not prevent the
 process from booting because the API uses a temporary development fallback
