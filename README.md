@@ -95,6 +95,19 @@ Current producer routing keys include `auction.bid.accepted`,
 baselines for the existing `BidAccepted`, `AuctionClosed`, and `WinnerSelected`
 wire formats.
 
+The Buy Now HTTP command accepts the compatibility request object
+`BuyNowRequest(string? BidderId = null)`. The `bidderId` property is deprecated
+and ignored for authorization; the authenticated JWT principal remains the
+authoritative bidder identity. Clients should therefore send a JSON object,
+not an empty array or empty body:
+
+```json
+{"bidderId":null}
+```
+
+The request does not carry a tenant selector; existing authentication and
+tenant authorization remain authoritative.
+
 ## Activity reporting
 
 Authenticated tenant clients can read the bounded activity report at
