@@ -97,33 +97,150 @@ wire formats.
 
 ## Local setup
 
-Prerequisites: .NET 10 SDK, PostgreSQL, RabbitMQ, and Redis when client
-assertion admission is enabled. Use the safe placeholders in `.env.example`
-or environment-specific configuration. Never commit private keys or real
-credentials. Public verification keys are supplied through local `keys/` paths
-and are ignored by Git.
+### Prerequisites
 
-Restore, build, and test from the repository root:
+Install the .NET 10 SDK. A local runtime also needs PostgreSQL for the API,
+Scheduler, and Outbox Publisher. RabbitMQ is needed by the Outbox Publisher to
+deliver events. Redis is needed only when client-assertion admission is
+enabled. The [DBAP Platform Infrastructure repository](https://github.com/pancakebaker/docker-dbap-platform)
+provides the development PostgreSQL, RabbitMQ, and Redis services used by the
+sample configuration.
+
+The API's Development launch profile uses `http://localhost:5000` and
+`https://localhost:7102`. Swagger is enabled only in Development. The health
+endpoint is `GET http://localhost:5000/health`; the development Swagger UI is
+`http://localhost:5000/swagger/index.html`.
+
+### Local configuration
+
+This repository uses standard .NET JSON configuration and environment
+variables. It does **not** load `.env` files automatically. `.env.example` is
+therefore a reference template, not a file that becomes active merely by being
+copied. You can copy it for reference, but apply overrides through environment
+variables, `appsettings.Development.json`, or an ignored
+`appsettings.Development.local.json` file:
+
+Unix/macOS:
+
+```bash
+cp .env.example .env
+export ConnectionStrings__BiddingDb='Host=127.0.0.1;Port=55432;Database=auction_demo;Username=auction_app;Password=change_me_in_local_env'
+export ConnectionStrings__ClientAssertionRedis='localhost:6379'
+```
+
+Windows PowerShell:
+
+```powershell
+Copy-Item .env.example .env
+$env:ConnectionStrings__BiddingDb = 'Host=127.0.0.1;Port=55432;Database=auction_demo;Username=auction_app;Password=change_me_in_local_env'
+$env:ConnectionStrings__ClientAssertionRedis = 'localhost:6379'
+```
+
+The API and workers already contain Development defaults for the demo database
+and RabbitMQ. Review the values before running locally. The important
+configuration names are:
+
+| Setting | Used by | Purpose | Required locally? |
+| --- | --- | --- | --- |
+| `ConnectionStrings__BiddingDb` | API, Scheduler, Publisher | Authoritative Bidding PostgreSQL | Yes |
+| `ConnectionStrings__ClientAssertionRedis` | API | Client-assertion replay protection | Only when `ClientAssertionAdmission__Enabled=true` |
+| `ClientAssertionAdmission__Enabled` | API | Enables signed client-assertion admission | No; Development default is `false` |
+| `Authentication__BiddingService__*` | API | Laravel/BFF JWT issuer, audience, key ID, and public key path | Needed for authenticated tenant API calls |
+| `Authentication__SystemAdmin__*` | API | System-administrator JWT trust settings and public key path | Needed for admin API calls |
+| `LiveFeedServiceAuthentication__*` | API | Trusted Live Feed service issuer, subject, audience, key ID, and public key path | Needed for Live Feed internal access calls |
+| `Database__ApplyMigrations` | API | Applies EF migrations during API startup | Development default is `true` |
+| `Database__SeedDemoData` | API | Seeds deterministic local demo data | Development default is `true` |
+| `OUTBOX_PUBLISHER_RABBITMQ_*` | Publisher | RabbitMQ host, credentials, vhost, exchange, and debug queue | Required by Publisher when overrides are needed |
+
+Use double underscores for nested .NET configuration keys. The complete
+placeholder list, including the exact RabbitMQ names, is in `.env.example`.
+Never commit real credentials or private keys.
+
+### Local keys
+
+The Bidding Service verifies tokens; it does not own the private keys used to
+sign them. Place the corresponding public PEM files at the paths configured by
+the API, normally:
+
+```text
+keys/bidding-service-public.pem
+keys/system-admin-public.pem
+keys/live-feed-service-public.pem
+```
+
+The Laravel/BFF and SystemAdministrator installations retain their private
+signing keys. Live Feed also retains its private key. This repository needs
+only the matching public verification material. No supported key-generation
+command is included here, so obtain the public keys from the local service
+installations or your development key-provisioning process. The `keys/`
+directory and PEM files are ignored by Git.
+
+In Development, missing API and system-admin public files do not prevent the
+process from booting because the API uses a temporary development fallback
+key; real authenticated requests still require matching configured public
+keys. The Live Feed public key is required when validating an internal Live
+Feed request. Production validates configured issuer, audience, key ID, and
+public-key files and must not use these development fallbacks.
+
+When client assertion admission is enabled, the client application presents a
+signed assertion using its own private key. Register its public key with the
+internal provisioning command; the private key is never read by or sent to
+this repository:
+
+```text
+dotnet run --project src/bidding-service/bidding-service.csproj -- provision --client-id <client-id> --key-id <key-id> --public-key-path <public-key.pem>
+```
+
+### Restore, database, build, and test
+
+From the repository root:
 
 ```text
 dotnet restore
+dotnet ef database update --project src/bidding-service/bidding-service.csproj --startup-project src/bidding-service/bidding-service.csproj
 dotnet build --no-restore --warnaserror
 dotnet test --no-build --no-restore
 ```
 
-Apply the Bidding schema with:
+PowerShell-friendly migration command:
 
-```text
+```powershell
 dotnet ef database update --project src/bidding-service/bidding-service.csproj --startup-project src/bidding-service/bidding-service.csproj
 ```
 
-Run the API or workers separately:
+The API applies migrations at startup when `Database__ApplyMigrations=true`.
+The explicit EF command is useful for inspecting or preparing the schema first.
+With `Database__SeedDemoData=true`, the initializer seeds the demo tenant,
+client application, deterministic auctions, and bid history when the database
+does not already contain auctions. It does not create human login accounts or
+client private keys. The seed is intended for local/demo use; production
+deployments should disable demo seeding and use controlled migrations and
+provisioning.
+
+### Run the API and workers
+
+Start the API in one terminal:
 
 ```text
 dotnet run --project src/bidding-service/bidding-service.csproj
+```
+
+Then start each worker in its own terminal as needed:
+
+```text
 dotnet run --project src/auction-scheduler/auction-scheduler.csproj
 dotnet run --project src/outbox-publisher/outbox-publisher.csproj
 ```
+
+The Scheduler reads PostgreSQL and closes eligible expired auctions, writing
+their lifecycle events to the outbox. The Outbox Publisher reads PostgreSQL
+and requires RabbitMQ to publish confirmed events. The API itself requires
+PostgreSQL for startup initialization; Redis is contacted for client-assertion
+replay protection only when that admission policy is enabled.
+
+For a complete local run, start PostgreSQL first, then the API, and start the
+Outbox Publisher with RabbitMQ available when event delivery is required. Add
+Redis before enabling `ClientAssertionAdmission__Enabled`.
 
 ## Validation
 
