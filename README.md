@@ -208,6 +208,31 @@ command is included here, so obtain the public keys from the local service
 installations or your development key-provisioning process. The
 `src/bidding-service/keys/` directory and PEM files are ignored by Git.
 
+The Live Feed service uses a dedicated second trust boundary for
+`POST /internal/live-feed/access`. Node Live Feed owns and protects the
+private key at `config/live-feed-service-private.pem`; Bidding verifies only
+the matching public key at `src/bidding-service/keys/live-feed-service-public.pem`.
+This pair must not be confused with the SystemAdministrator admin-handoff
+pair, where Laravel owns `storage/keys/system-admin-private.pem` and Node
+receives `config/system-admin-public.pem`.
+
+For local development, provision the Live Feed public key from the Node
+repository without copying its private key into this repository:
+
+```powershell
+$nodePrivate = "..\nodejs-live-feed\config\live-feed-service-private.pem"
+$biddingPublic = "src\bidding-service\keys\live-feed-service-public.pem"
+New-Item -ItemType Directory -Path (Split-Path -Parent $biddingPublic) -Force | Out-Null
+openssl pkey -in $nodePrivate -pubout -out $biddingPublic
+```
+
+Bidding validates the short-lived RS256 service token with
+`iss=dbap-live-feed-service`, `sub=live-feed-service`,
+`aud=dbap-bidding-service`, `kid=live-feed-service-v1`, and `jti`/`iat`/`nbf`/`exp`.
+The public PEM remains an ignored local artifact under `src/bidding-service/keys/`;
+the project copies it to the runtime output during a local build. Never commit
+it or place the private key here.
+
 In Development, missing API and system-admin public files do not prevent the
 process from booting because the API uses a temporary development fallback
 key; real authenticated requests still require matching configured public
