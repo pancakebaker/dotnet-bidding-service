@@ -4,6 +4,83 @@
 
 Standalone .NET runtime for the authoritative bidding boundary of the Distributed Bidding Auction Platform.
 
+## Quick local start
+
+This quick start gets the demo API running locally using the repository’s default development configuration.
+
+### 1. Start the shared development infrastructure
+
+From the sibling
+[DBAP Platform Infrastructure](https://github.com/pancakebaker/docker-dbap-platform)
+repository:
+
+```powershell
+docker compose up -d postgres rabbitmq redis
+```
+
+The Development configuration in this repository already contains the demo
+PostgreSQL and RabbitMQ defaults used by that stack. A `.env` file is therefore
+not required for the normal local demo path.
+
+### 2. Restore and prepare the Bidding database
+
+From this repository root:
+
+```powershell
+dotnet restore
+
+dotnet ef database update `
+  --project src/bidding-service/bidding-service.csproj `
+  --startup-project src/bidding-service/bidding-service.csproj
+```
+
+The database is also migrated automatically at startup when
+`Database__ApplyMigrations=true`, but running the migration explicitly makes a
+fresh setup easier to verify.
+
+### 3. Start the API
+
+```powershell
+dotnet run --project src/bidding-service/bidding-service.csproj
+```
+
+Then open:
+
+- Health: `http://localhost:5000/health`
+- Swagger: `http://localhost:5000/swagger/index.html`
+
+With the Development defaults, demo auction data is seeded automatically when
+the database does not already contain auctions.
+
+### 4. Optional: start background workers
+
+For event publication and automatic auction closing, open separate terminals:
+
+```powershell
+dotnet run --project src/auction-scheduler/auction-scheduler.csproj
+dotnet run --project src/outbox-publisher/outbox-publisher.csproj
+```
+
+The API can be explored without those workers, but RabbitMQ-backed event
+delivery requires the Outbox Publisher.
+
+### 5. Optional: enable Live Feed integration
+
+Per-auction Live Feed admission uses a separate service-to-service key pair.
+Node Live Feed keeps the private key; this repository receives only the matching
+public key at:
+
+```text
+src/bidding-service/keys/live-feed-service-public.pem
+```
+
+If you are running the full platform, follow [Local keys](#local-keys) before
+testing `auction:subscribe`.
+
+For custom database credentials, client-assertion admission, system-admin
+authentication, or production-style key configuration, continue to
+[Local setup](#local-setup).
+
 ## Responsibility
 
 This repository owns the Bidding HTTP API, Auction/Bid/Tenant domain, Buy Now
